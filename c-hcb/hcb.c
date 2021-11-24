@@ -182,6 +182,7 @@ BYTE* check_chain(char* path, bool check_for_continue) {
     char* last_hash = malloc((nonce_length + 1) * sizeof(char));
     char* last_nonce = malloc((nonce_length + 1) * sizeof(char));
     char* print_content;
+    char* nonce_prefix = "#nonce:";
     if (check_for_continue) {
         // Get file size
         fseek(fp, 0L, SEEK_END);
@@ -196,6 +197,10 @@ BYTE* check_chain(char* path, bool check_for_continue) {
         // Check if line is a comment
         int len = strlen(line);
         if (len >= 1 && line[0] == '#') {
+            // Search for a nonce to resume to
+            if (strncmp(nonce_prefix, line, strlen(nonce_prefix)) == 0) {
+                counter = atoi(&line[strlen(nonce_prefix)]);
+            }
             continue;
         }
 

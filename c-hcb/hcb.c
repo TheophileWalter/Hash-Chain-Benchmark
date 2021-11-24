@@ -197,6 +197,10 @@ BYTE* check_chain(char* path, bool check_for_continue) {
         // Check if line is a comment
         int len = strlen(line);
         if (len >= 1 && line[0] == '#') {
+            // If continue mode, save the line
+            if (check_for_continue) {
+                strcat(print_content, line);
+            }
             // Search for a nonce to resume to
             if (strncmp(nonce_prefix, line, strlen(nonce_prefix)) == 0) {
                 counter = atoi(&line[strlen(nonce_prefix)]);

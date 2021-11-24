@@ -61,7 +61,7 @@ char* padding_right(char* source, int length, char chr) {
 
 // Print the program usage
 void printUsage() {
-    printf("Usage: hcb MESSAGE | --in FILE | --check FILE\n\n");
+    printf("Usage: hcb MESSAGE | --continue FILE | --check FILE\n\n");
     printf("\tMESSAGE\t\tThe message to use to start the chain\n");
     printf("\t--continue FILE\tA path to a text file contining a chain to continue\n");
     printf("\t--check FILE\tA path to a text file contining a chain to check\n\n");

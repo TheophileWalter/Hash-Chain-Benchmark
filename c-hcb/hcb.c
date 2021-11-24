@@ -82,7 +82,7 @@ void exit_handler(int _) {
 void generate_chain(char* text, char* path, int difficulty, bool continue_mode) {
 
     // Open file
-    out_fp = fopen(path, "w");
+    out_fp = fopen(path, continue_mode ? "a" : "w");
     if (out_fp == NULL) {
         printf("Error: Unable to open file \"%s\"\n\n", path);
         exit(11);
@@ -192,7 +192,7 @@ BYTE* check_chain(char* path, bool check_for_continue) {
     // Read file line by line and check the content
     char* last_hash = malloc((nonce_length + 1) * sizeof(char));
     char* last_nonce = malloc((nonce_length + 1) * sizeof(char));
-    char* print_content;
+    char* saved_content;
     char* nonce_prefix = "#nonce:";
     if (check_for_continue) {
         // Get file size
@@ -200,8 +200,8 @@ BYTE* check_chain(char* path, bool check_for_continue) {
         int size = ftell(fp);
         rewind(fp);
         // Allocate a string that can handle the entire file
-        print_content = malloc((size + 1) * sizeof(char));
-        print_content[0] = '\0';
+        saved_content = malloc((size + 1) * sizeof(char));
+        saved_content[0] = '\0';
     }
     while (getline(&line, &len, fp) != -1) {
 
@@ -210,7 +210,7 @@ BYTE* check_chain(char* path, bool check_for_continue) {
         if (len >= 1 && line[0] == '#') {
             // If continue mode, save the line
             if (check_for_continue) {
-                strcat(print_content, line);
+                strcat(saved_content, line);
             }
             // Search for a nonce to resume to
             if (strncmp(nonce_prefix, line, strlen(nonce_prefix)) == 0) {
@@ -221,7 +221,7 @@ BYTE* check_chain(char* path, bool check_for_continue) {
 
         // Save line if in continue mode
         if (check_for_continue && len > 2) {
-            strcat(print_content, line);
+            strcat(saved_content, line);
         }
 
         // Remove final line break
@@ -300,25 +300,33 @@ BYTE* check_chain(char* path, bool check_for_continue) {
         exit(9);
     }
 
-    // Print success or file content
-    if (!check_for_continue) {
-        printf("HCB file is valid.\n\n");
-    } else {
-        // Remove last line break
-        int len = strlen(print_content);
-        if (print_content[len-1] == '\n') {
-            print_content[len-1] = '\0';
-        }
-        // Print
-        printf("%s\n", print_content);
-    }
-    fflush(stdout);
-
     // Free memory
     fclose(fp);
     if (line) {
         free(line);
     }
+
+    // Print success or file content
+    if (!check_for_continue) {
+        printf("HCB file is valid.\n\n");
+    } else {
+        // Remove last line break
+        int len = strlen(saved_content);
+        if (saved_content[len-1] == '\n') {
+            saved_content[len-1] = '\0';
+        }
+        // Open file for writing
+        out_fp = fopen(path, "w");
+        if (out_fp == NULL) {
+            printf("Error: Unable to open file \"%s\"\n\n", path);
+            exit(12);
+        }
+        // Saves
+        fprintf(out_fp, "%s\n", saved_content);
+        // Close file
+        fclose(out_fp);
+    }
+    fflush(stdout);
 
     return hash;
 

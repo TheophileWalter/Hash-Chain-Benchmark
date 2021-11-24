@@ -329,6 +329,7 @@ BYTE* check_chain(char* path, bool check_for_continue) {
         fclose(out_fp);
     }
 
+    // Return the last hash if we need to continue
     return hash;
 
 }

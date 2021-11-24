@@ -309,6 +309,7 @@ BYTE* check_chain(char* path, bool check_for_continue) {
     // Print success or file content
     if (!check_for_continue) {
         printf("HCB file is valid.\n\n");
+        fflush(stdout);
     } else {
         // Remove last line break
         int len = strlen(saved_content);
@@ -323,10 +324,10 @@ BYTE* check_chain(char* path, bool check_for_continue) {
         }
         // Saves
         fprintf(out_fp, "%s\n", saved_content);
+        fflush(out_fp);
         // Close file
         fclose(out_fp);
     }
-    fflush(stdout);
 
     return hash;
 

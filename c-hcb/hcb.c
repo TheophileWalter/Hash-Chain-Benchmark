@@ -69,7 +69,7 @@ void printUsage() {
 
 // Function called on program exit
 void exit_handler(int _) {
-    printf("#current-nonce:%lld\n", counter);
+    printf("#nonce:%lld\n", counter);
     fflush(stdout);
     exit(0);
 }
@@ -181,6 +181,16 @@ BYTE* check_chain(char* path, bool check_for_continue) {
     // Read file line by line and check the content
     char* last_hash = malloc((nonce_length + 1) * sizeof(char));
     char* last_nonce = malloc((nonce_length + 1) * sizeof(char));
+    char* print_content;
+    if (check_for_continue) {
+        // Get file size
+        fseek(fp, 0L, SEEK_END);
+        int size = ftell(fp);
+        rewind(fp);
+        // Allocate a string that can handle the entire file
+        print_content = malloc((size + 1) * sizeof(char));
+        print_content[0] = '\0';
+    }
     while (getline(&line, &len, fp) != -1) {
 
         // Check if line is a comment
@@ -189,9 +199,9 @@ BYTE* check_chain(char* path, bool check_for_continue) {
             continue;
         }
 
-        // Print line if in continue mode
+        // Save line if in continue mode
         if (check_for_continue && len > 2) {
-            printf("%s", line);
+            strcat(print_content, line);
         }
 
         // Remove final line break
@@ -270,11 +280,17 @@ BYTE* check_chain(char* path, bool check_for_continue) {
         exit(9);
     }
 
-    // Print success
+    // Print success or file content
     if (!check_for_continue) {
         printf("HCB file is valid.\n\n");
     } else {
-        printf("\n");
+        // Remove last line break
+        int len = strlen(print_content);
+        if (print_content[len-1] == '\n') {
+            print_content[len-1] = '\0';
+        }
+        // Print
+        printf("%s\n", print_content);
     }
     fflush(stdout);
 

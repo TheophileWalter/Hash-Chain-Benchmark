@@ -15,7 +15,7 @@ For example:
 or  
 ```42 -------------------------------------------------------------```  
   
-__Schema resuming the format of a chain:__  
+__Schema resuming the construction of a chain:__  
 ![Chain format schema](chain-format.jpg)  
 ### Block format
 A block consists of two lines separated by a single carriage return (\n).  

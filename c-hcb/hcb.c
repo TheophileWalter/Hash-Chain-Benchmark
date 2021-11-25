@@ -7,7 +7,6 @@
 #include <signal.h>
 #include "sha256.h"
 
-// TODO: Check that the start message is on one line
 // TODO: Check that the nonce is numeric only
 
 // Size of a sha256 hash in hexadecimal ascii characters
@@ -83,6 +82,14 @@ void exit_handler(int _) {
 
 // Generate a chain from a message and a difficulty
 void generate_chain(char* text, char* path, int difficulty, bool continue_mode) {
+
+    // Check the start message
+    for (int i = 0; i < strlen(text); i++) {
+        if (text[i] == '\r' || text[i] == '\n') {
+            printf("Error: Start message must be over one single line\n\n");
+            exit(13);
+        }
+    }
 
     // Open file
     out_fp = fopen(path, continue_mode ? "a" : "w");

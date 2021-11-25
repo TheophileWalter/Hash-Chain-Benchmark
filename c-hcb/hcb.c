@@ -179,7 +179,8 @@ BYTE* check_chain(char* path, bool check_for_continue) {
     FILE * fp;
     char * line = NULL;
     size_t len = 0;
-    int current_line = 1;
+    int current_line = 1; // The current line number in the chain (comments are ignored)
+    int real_line = 0; // The current line number in the file (every line is counted)
 
     // Open file
     fp = fopen(path, "r");
@@ -214,6 +215,8 @@ BYTE* check_chain(char* path, bool check_for_continue) {
         saved_content[0] = '\0';
     }
     while (getline(&line, &len, fp) != -1) {
+
+        real_line++;
 
         // Remove final line break
         int len = strlen(line);
@@ -255,7 +258,7 @@ BYTE* check_chain(char* path, bool check_for_continue) {
         // Check if first line is correct
         if (current_line == 1 && strcmp(line, expected_first_line) != 0) {
 
-            printf("Error while checking \"%s\": First line expected \"%s\" but got \"%s\"\n\n", path, expected_first_line, line);
+            printf("Error while checking \"%s\": First line expected \"%s\" but got \"%s\" on line #%d\n\n", path, expected_first_line, line, real_line);
             exit(5);
 
         } else if (current_line == 2) {
@@ -269,6 +272,22 @@ BYTE* check_chain(char* path, bool check_for_continue) {
         } else if (current_line % 3 == 0) {
 
             // Get a nonce
+
+            // Check the nonce lenght
+            if (strlen(line) != nonce_length) {
+                printf("Error while checking \"%s\": Nonce line #%d must be %d characters long\n\n", path, real_line, nonce_length);
+                exit(15);
+            }
+
+            // Check if the nonce is only numeric
+            for (int i = 0; i < strlen(line); i++) {
+                if (line[i] < '0' || line[i] > '9') {
+                    printf("Error while checking \"%s\": Nonce line #%d must be only numeric but got \"%s\"\n\n", path, real_line, line);
+                    exit(14);
+                }
+            }
+
+            // Save the nonce
             strcpy(last_nonce, line);
 
         } else if (current_line != 1 && current_line % 3 == 1) {
@@ -279,13 +298,19 @@ BYTE* check_chain(char* path, bool check_for_continue) {
             expected_line = padding_right(expected_line, nonce_length, '-');
 
             if (strcmp(line, expected_line) != 0) {
-                printf("Error while checking \"%s\": Separator line #%d expected \"%s\" but got \"%s\"\n\n", path, current_line, expected_line, line);
+                printf("Error while checking \"%s\": Separator line #%d expected \"%s\" but got \"%s\"\n\n", path, real_line, expected_line, line);
                 exit(6);
             }
 
         } else if (current_line % 3 == 2) {
 
             // Line representing a hash
+
+            // Check the hash lenght
+            if (strlen(line) != sha256_hex_length) {
+                printf("Error while checking \"%s\": Hash line #%d must be %d characters long\n\n", path, real_line, sha256_hex_length);
+                exit(16);
+            }
 
             // First we hash the previous hash and nonce and compare it to the read hash
             sprintf(message, "%s\n%s", last_hash, last_nonce);
@@ -304,7 +329,7 @@ BYTE* check_chain(char* path, bool check_for_continue) {
             int difficulty = numberOfZero(hash, SHA256_BLOCK_SIZE);
             int expected_difficulty = (current_line - 2) / 3 - 1;
             if (difficulty != expected_difficulty) {
-                printf("Error while checking \"%s\": Hash line #%d (\"%s\") expected difficulty \"%d\" but got \"%d\"\n\n", path, current_line, line, expected_difficulty, difficulty);
+                printf("Error while checking \"%s\": Hash line #%d (\"%s\") expected difficulty \"%d\" but got \"%d\"\n\n", path, real_line, line, expected_difficulty, difficulty);
                 exit(8);
             }
 

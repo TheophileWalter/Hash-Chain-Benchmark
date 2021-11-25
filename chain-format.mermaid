@@ -1,0 +1,17 @@
+flowchart LR
+    subgraph Block #0
+    A["start message"] --> C("concat")
+    B["nonce"] --> C
+    end
+    C -->|sha256| D
+    subgraph Block #1
+    D["hash"] --> F("concat")
+    E["nonce"] --> F
+    end
+    F -->|sha256| G
+    subgraph Block #2
+    G["hash"] --> H("concat")
+    I["nonce"] -->H
+    end
+    H -->|sha256| J["..."]
+    style J fill:#ffffff00,stroke:#ffffff00

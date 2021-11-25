@@ -11,7 +11,7 @@
 const int sha256_hex_length = SHA256_BLOCK_SIZE * 2;
 
 // Lenght of the nonce
-const int nonce_length = sha256_hex_length;
+const int nonce_length = SHA256_BLOCK_SIZE * 2;
 
 // Counter used to produce the nonce
 long long unsigned int counter = 0;
@@ -279,7 +279,7 @@ BYTE* check_chain(char* path, bool check_for_continue) {
 
             // Check the difficulty
             int difficulty = numberOfZero(hash, SHA256_BLOCK_SIZE);
-            int expected_difficulty =  (current_line - 2) / 3 - 1;
+            int expected_difficulty = (current_line - 2) / 3 - 1;
             if (difficulty != expected_difficulty) {
                 printf("Error while checking \"%s\": Hash line #%d (\"%s\") expected difficulty \"%d\" but got \"%d\"\n\n", path, current_line, line, expected_difficulty, difficulty);
                 exit(8);
@@ -295,8 +295,8 @@ BYTE* check_chain(char* path, bool check_for_continue) {
     }
 
     // Last line must be a hash or a nonce
-    if (current_line % 3 == 2) {
-        printf("Error while checking \"%s\": File must end with a hash or a nonce\n\n", path);
+    if (current_line % 3 != 0) {
+        printf("Error while checking \"%s\": File must end with a hash\n\n", path);
         exit(9);
     }
 

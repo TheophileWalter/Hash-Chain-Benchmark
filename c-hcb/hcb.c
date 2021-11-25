@@ -7,6 +7,9 @@
 #include <signal.h>
 #include "sha256.h"
 
+// TODO: Check that the start message is on one line
+// TODO: Check that the nonce is numeric only
+
 // Size of a sha256 hash in hexadecimal ascii characters
 const int sha256_hex_length = SHA256_BLOCK_SIZE * 2;
 
@@ -205,26 +208,8 @@ BYTE* check_chain(char* path, bool check_for_continue) {
     }
     while (getline(&line, &len, fp) != -1) {
 
-        // Check if line is a comment
-        int len = strlen(line);
-        if (len >= 1 && line[0] == '#') {
-            // If continue mode, save the line
-            if (check_for_continue) {
-                strcat(saved_content, line);
-            }
-            // Search for a nonce to resume to
-            if (strncmp(nonce_prefix, line, strlen(nonce_prefix)) == 0) {
-                counter = atoi(&line[strlen(nonce_prefix)]);
-            }
-            continue;
-        }
-
-        // Save line if in continue mode
-        if (check_for_continue && len > 2) {
-            strcat(saved_content, line);
-        }
-
         // Remove final line break
+        int len = strlen(line);
         if (line[len-1] == '\n') {
             len--;
             line[len] = '\0';
@@ -232,6 +217,32 @@ BYTE* check_chain(char* path, bool check_for_continue) {
         if (line[len-1] == '\r') {
             len--;
             line[len] = '\0';
+        }
+
+        // Check if line is a comment
+        if (len >= 1 && line[0] == '#') {
+            // If continue mode, save the line
+            if (check_for_continue) {
+                strcat(saved_content, line);
+                strcat(saved_content, "\n");
+            }
+            // Search for a nonce to resume to
+            if (strncmp(nonce_prefix, line, strlen(nonce_prefix)) == 0) {
+                char* string_nonce = &line[strlen(nonce_prefix)];
+                char* end_ptr;
+                counter = strtoull(string_nonce, &end_ptr, 10);
+                if (string_nonce == end_ptr) {
+                    printf("Warning: incorrect decimal nonce value \"%s\" in file \"%s\"\n", string_nonce, path);
+                    counter = 0;
+                }
+            }
+            continue;
+        }
+
+        // Save line if in continue mode
+        if (check_for_continue && len > 0) {
+            strcat(saved_content, line);
+            strcat(saved_content, "\n");
         }
         
         // Check if first line is correct

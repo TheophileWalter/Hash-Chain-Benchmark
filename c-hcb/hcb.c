@@ -242,7 +242,7 @@ BYTE* check_chain(char* path, bool check_for_continue) {
                 char* end_ptr;
                 counter = strtoull(string_nonce, &end_ptr, 10);
                 if (string_nonce == end_ptr) {
-                    printf("Warning: incorrect decimal nonce value \"%s\" in file \"%s\" on line #%s\n", string_nonce, path, real_line);
+                    printf("Warning: incorrect decimal nonce value \"%s\" in file \"%s\" on line #%d\n", string_nonce, path, real_line);
                     counter = 0;
                 }
             }

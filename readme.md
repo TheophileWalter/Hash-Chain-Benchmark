@@ -48,7 +48,7 @@ Below a comment example:
 ```# This is my comment```  
   
 __Possible use for comments__  
-The C-HCB program (C implementation of HCB) is using comments to store the last tested nonce at the exit of the program. This allow to restart at the same position when the user will resume the computation of its chain.  
+The [C-HCB program](c-hcb) (C implementation of HCB) is using comments to store the last tested nonce at the exit of the program. This allow to restart at the same position when the user will resume the computation of its chain.  
 It is formatted like below:  
 ```#nonce:123456```  
 When C-HCB will resume the computation, it will restart with the last nonce present in the file.  

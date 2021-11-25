@@ -226,7 +226,12 @@ BYTE* check_chain(char* path, bool check_for_continue) {
 
         // Remove final line break
         if (line[len-1] == '\n') {
-            line[len-1] = '\0';
+            len--;
+            line[len] = '\0';
+        }
+        if (line[len-1] == '\r') {
+            len--;
+            line[len] = '\0';
         }
         
         // Check if first line is correct

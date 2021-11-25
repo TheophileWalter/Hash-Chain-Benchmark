@@ -18,7 +18,7 @@ or
 __Schema resuming the format of a chain:__  
 ![Chain format schema](chain-format.jpg)  
 ### Block format
-A block consists of two lines separated by a single carriage return (\n).  
+A block consists of two lines separated by a new line and/or carriage return (\r\n).  
 * The first line of the block is the hexadecimal hash of the previous block. Block 0 is a special case because its first line contains the start message of the chain. It is chosen by the creator of the chain and can have an arbitrary length. The start message must be on one line.
 * The second line is a positive or zero integer padded with the right number of 0 to the left to have a length of 64 characters.
   Example:  
